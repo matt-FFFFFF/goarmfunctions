@@ -12,5 +12,13 @@ func Parameters(f *FunctionCall, ctx EvalContext) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("parameter %s not found", paramName)
 	}
+	if len(f.Members) == 0 {
+		return value, nil
+	}
+	for _, member := range f.Members {
+		if value, ok = value.(map[string]interface{})[member]; !ok {
+			return nil, fmt.Errorf("member %s not found", member)
+		}
+	}
 	return value, nil
 }

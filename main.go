@@ -11,7 +11,7 @@ import (
 func main() {
 	armlex := armlexer.New()
 	//example := `[if(equals(parameters('dnsZoneSubscriptionId'), ''), parameters('azureAutomationWebhookPrivateDnsZoneId'), format('/subscriptions/{0}/resourceGroups/{1}/providers/{2}/{3}', parameters('dnsZoneSubscriptionId'), toLower(parameters('dnsZoneResourceGroupName')), parameters('dnsZoneResourceType'), replace(replace(parameters('dnsZoneNames').azureAutomationWebhookPrivateDnsZoneId, '{regionName}', parameters('dnsZoneRegion')), '{regionCode}', parameters('dnzZoneRegionShortNames')[parameters('dnsZoneRegion')])))]`
-	example := `[if(equals(parameters('dnsZoneSubscriptionId'), ''), parameters('test1'), parameters('test2'))]`
+	example := `[parameters('testobject').key1.key2]`
 	//example := `[if(true, 'test1', 'test2')]`
 
 	reader := bytes.NewReader([]byte(example))
@@ -28,9 +28,11 @@ func main() {
 	}
 
 	val, err := ast.Expression.Evaluate(armparser.EvalContext{
-		"dnsZoneSubscriptionId": "test",
-		"test1":                 "test1",
-		"test2":                 "test2",
+		"testobject": map[string]interface{}{
+			"key1": map[string]interface{}{
+				"key2": "value2",
+			},
+		},
 	})
 	if err != nil {
 		fmt.Println(err.Error())
