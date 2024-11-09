@@ -3,6 +3,7 @@ package armparser
 import (
 	"testing"
 
+	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +18,7 @@ func TestArmParser(t *testing.T) {
 		evalErr  error
 	}{
 		{
-			desc:     "String literal",
+			desc:     "string literal",
 			ctx:      nil,
 			in:       "Just a string",
 			expected: "Just a string",
@@ -25,7 +26,7 @@ func TestArmParser(t *testing.T) {
 			evalErr:  nil,
 		},
 		{
-			desc:     "Whitespace",
+			desc:     "whitespace",
 			ctx:      nil,
 			in:       " ",
 			expected: " ",
@@ -33,7 +34,7 @@ func TestArmParser(t *testing.T) {
 			evalErr:  nil,
 		},
 		{
-			desc:     "Embedded function",
+			desc:     "embedded function",
 			ctx:      nil,
 			in:       "foo[if(true, 1, 2)]bar",
 			expected: "foo1bar",
@@ -41,7 +42,7 @@ func TestArmParser(t *testing.T) {
 			evalErr:  nil,
 		},
 		{
-			desc: "Multiple embedded functions",
+			desc: "multiple embedded functions",
 			ctx: EvalContext{
 				"test": "testvalue",
 			},
@@ -58,14 +59,33 @@ func TestArmParser(t *testing.T) {
 			parseErr: nil,
 			evalErr:  nil,
 		},
+		{
+			desc:     "double function",
+			ctx:      nil,
+			in:       "[if(true, [if(true, 1, 2)], 3)]",
+			expected: nil,
+			parseErr: &lexer.Error{
+				Msg: "invalid input text \"[if(true, 1, 2)]...\"",
+				Pos: lexer.Position{
+					Filename: "test",
+					Offset:   10,
+					Line:     1,
+					Column:   11,
+				},
+			},
+			evalErr: nil,
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			parser := New()
 			f, err := parser.ParseString("test", tC.in)
-			require.ErrorIsf(t, err, tC.parseErr, "parse error not equal: %v", err)
+			require.Equalf(t, tC.parseErr, err, "parse error not equal: %v", err)
+			if err != nil {
+				return
+			}
 			got, err := f.Evaluate(tC.ctx)
-			require.ErrorIs(t, err, tC.evalErr)
+			require.Equalf(t, tC.evalErr, err, "eval error not equal: %v", err)
 			if err != nil {
 				return
 			}

@@ -1,6 +1,12 @@
 package armparser
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
 
 func TestIf(t *testing.T) {
 	testCases := []struct {
@@ -11,27 +17,38 @@ func TestIf(t *testing.T) {
 		err      error
 	}{
 		{
-			desc:     "true",
+			desc:     "bool literal",
 			in:       "[if(true, 1, 2)]",
 			ctx:      EvalContext{},
 			expected: "1",
 			err:      nil,
+		},
+		{
+			desc:     "bool literal",
+			in:       "[if(false, 1, 2)]",
+			ctx:      EvalContext{},
+			expected: "2",
+			err:      nil,
+		},
+		{
+			desc:     "string instead of bool",
+			in:       "[if('a', 1, 2)]",
+			ctx:      EvalContext{},
+			expected: "",
+			err:      fmt.Errorf("if condition must be a boolean, got %T", "a"),
 		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			parser := New()
 			f, err := parser.ParseString("test", tC.in)
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			require.NoError(t, err)
 			result, err := f.Evaluate(tC.ctx)
-			if result != tC.expected {
-				t.Errorf("expected %v, got %v", tC.expected, result)
+			require.Equalf(t, tC.err, err, "unexpected evaluate error: %v", err)
+			if err != nil {
+				return
 			}
-			if err != tC.err {
-				t.Errorf("expected %v, got %v", tC.err, err)
-			}
+			assert.Equalf(t, tC.expected, result, "unexpected result: %v", result)
 		})
 	}
 }
