@@ -1,11 +1,9 @@
 package armparser
 
-import "fmt"
-
 // Equals returns true if the first argument is equal to the second argument.
-func Equals(f *FunctionCall, ctx EvalContext) (interface{}, error) {
+func Equals(f *FunctionCall, ctx EvalContext) (any, error) {
 	if len(f.Args) != 2 {
-		return nil, fmt.Errorf("equals function requires 2 arguments")
+		return nil, NewArgumentError("equals", 2, len(f.Args))
 	}
 	arg1, err := f.Args[0].Evaluate(ctx)
 	if err != nil {

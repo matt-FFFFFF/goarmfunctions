@@ -1,13 +1,9 @@
 package armparser
 
-import (
-	"fmt"
-)
-
 // If evaluates the first argument and returns the second argument if it is true, otherwise it returns the third argument.
-func If(f *FunctionCall, ctx EvalContext) (interface{}, error) {
+func If(f *FunctionCall, ctx EvalContext) (any, error) {
 	if len(f.Args) != 3 {
-		return nil, fmt.Errorf("if function requires 3 arguments")
+		return nil, NewArgumentError("if", 3, len(f.Args))
 	}
 	condition, err := f.Args[0].Evaluate(ctx)
 	if err != nil {

@@ -27,9 +27,9 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	val, err := ast.Expression.Evaluate(armparser.EvalContext{
-		"testobject": map[string]interface{}{
-			"key1": map[string]interface{}{
+	val, err := ast.Evaluate(armparser.EvalContext{
+		"testobject": map[string]any{
+			"key1": map[string]any{
 				"key2": "value2",
 			},
 		},

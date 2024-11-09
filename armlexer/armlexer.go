@@ -38,6 +38,10 @@ func New() lexer.Definition {
 			Name:    "Punct",
 			Pattern: `[,()\[\].]`,
 		},
+		{
+			Name:    "UnquotedLiteral",
+			Pattern: `[^\[\]]+`,
+		},
 	})
 }
 
