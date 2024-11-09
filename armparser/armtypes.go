@@ -4,15 +4,20 @@ import "github.com/matt-FFFFFF/goarmfunctions/armlexer"
 
 type EvalContext map[string]any
 
-// ArmValue
+// ArmValue is the root node of the ARM function AST.
+// It represents any JSON value in an ARM resource.
 type ArmValue struct {
 	ArmTemplateString *ArmTemplateString `@@`
 }
 
+// ArmTemplateString is a node in the ARM function AST.
+// It represents a string that may contain either an ARM function or a literal.
 type ArmTemplateString struct {
 	Parts []*ArmTemplatePart `( @@ )+`
 }
 
+// ArmTemplatePart is a node in the ARM function AST.
+// It represents a part of an ARM template string, which can be either a literal or an expression.
 type ArmTemplatePart struct {
 	Literal    *string     `@UnquotedLiteral`
 	Expression *Expression `| "[" @@ "]"`
