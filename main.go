@@ -16,34 +16,32 @@ func (b *Boolean) Capture(values []string) error {
 	return nil
 }
 
-var lexerDef = lexer.Must(lexer.New(lexer.Rules{
-	"Root": {
-		{
-			Name:    "Boolean",
-			Pattern: `true|false`,
-		},
-		{
-			Name:    "Ident",
-			Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`,
-		},
-		{
-			Name:    "String",
-			Pattern: `'(?:\\.|[^'])*'`,
-		},
-		{
-			Name:    "Number",
-			Pattern: `[0-9]+`,
-		},
-		{
-			Name:    "Whitespace",
-			Pattern: `[ \t\n\r]+`,
-			Action:  nil,
-		},
-		{
-			Name:    "Punct",
-			Pattern: `[,()\[\].]`,
-		},
-	}}))
+var lexerRules = lexer.MustSimple([]lexer.SimpleRule{
+	{
+		Name:    "Boolean",
+		Pattern: `true|false`,
+	},
+	{
+		Name:    "Ident",
+		Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`,
+	},
+	{
+		Name:    "String",
+		Pattern: `'(?:\\.|[^'])*'`,
+	},
+	{
+		Name:    "Number",
+		Pattern: `[0-9]+`,
+	},
+	{
+		Name:    "Whitespace",
+		Pattern: `[ \t\n\r]+`,
+	},
+	{
+		Name:    "Punct",
+		Pattern: `[,()\[\].]`,
+	},
+})
 
 type ArmFunction struct {
 	Expression *Expression `"[" @@ "]"`
@@ -64,9 +62,10 @@ type FunctionCall struct {
 }
 
 var parser = participle.MustBuild[ArmFunction](
-	participle.Lexer(lexerDef),
+	participle.Lexer(lexerRules),
 	participle.Unquote("String"),
 	participle.CaseInsensitive("Ident"),
+	participle.Elide("Whitespace"),
 )
 
 func main() {
@@ -75,7 +74,7 @@ func main() {
 	example := `[if(true, 'test1', 'test2')]`
 
 	reader := io.Reader(strings.NewReader(example))
-	lexed, err := lexerDef.Lex("test", reader)
+	lexed, err := lexerRules.Lex("test", reader)
 	for tok, err := lexed.Next(); err == nil && !tok.EOF(); tok, err = lexed.Next() {
 		fmt.Printf("Type: %s, Value: %s\n", tokType2Str(tok.Type), tok.Value)
 	}
@@ -96,7 +95,7 @@ func main() {
 
 // Helper function to get the token type name
 func tokType2Str(t lexer.TokenType) string {
-	for k, v := range lexerDef.Symbols() {
+	for k, v := range lexerRules.Symbols() {
 		if v == t {
 			return k
 		}
