@@ -15,6 +15,7 @@ func New() *participle.Parser[ArmValue] {
 		participle.Unquote("String"),
 		participle.CaseInsensitive("Ident"),
 		participle.Elide("Whitespace"),
+		participle.UseLookahead(5),
 	)
 }
 

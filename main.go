@@ -11,7 +11,7 @@ import (
 func main() {
 	armlex := armlexer.New()
 	//example := `[if(equals(parameters('dnsZoneSubscriptionId'), ''), parameters('azureAutomationWebhookPrivateDnsZoneId'), format('/subscriptions/{0}/resourceGroups/{1}/providers/{2}/{3}', parameters('dnsZoneSubscriptionId'), toLower(parameters('dnsZoneResourceGroupName')), parameters('dnsZoneResourceType'), replace(replace(parameters('dnsZoneNames').azureAutomationWebhookPrivateDnsZoneId, '{regionName}', parameters('dnsZoneRegion')), '{regionCode}', parameters('dnzZoneRegionShortNames')[parameters('dnsZoneRegion')])))]`
-	example := `[parameters('testobject').key1.key2]`
+	example := `[if(true, 1, 2)]`
 	//example := `[if(true, 'test1', 'test2')]`
 
 	reader := bytes.NewReader([]byte(example))

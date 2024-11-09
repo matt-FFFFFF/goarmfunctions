@@ -13,34 +13,49 @@ func (b *Boolean) Capture(values []string) error {
 
 // New returns a new lexer definition for ARM functions.
 func New() lexer.Definition {
-	return lexer.MustSimple([]lexer.SimpleRule{
-		{
-			Name:    "Boolean",
-			Pattern: `true|false`,
+	return lexer.MustStateful(lexer.Rules{
+		"Root": {
+			{
+				Name:    "UnquotedLiteral",
+				Pattern: `[^\[\]]+`,
+				Action:  nil,
+			},
+			{
+				Name:    "ArmFunctionEnclosure",
+				Pattern: `\[`,
+				Action:  lexer.Push("armfunction"),
+			},
 		},
-		{
-			Name:    "Ident",
-			Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`,
-		},
-		{
-			Name:    "String",
-			Pattern: `'(?:\\.|[^'])*'`,
-		},
-		{
-			Name:    "Number",
-			Pattern: `[0-9]+`,
-		},
-		{
-			Name:    "Whitespace",
-			Pattern: `[ \t\n\r]+`,
-		},
-		{
-			Name:    "Punct",
-			Pattern: `[,()\[\].]`,
-		},
-		{
-			Name:    "UnquotedLiteral",
-			Pattern: `[^\[\]]+`,
+		"armfunction": {
+			{
+				Name:    "Boolean",
+				Pattern: `true|false`,
+			},
+			{
+				Name:    "Ident",
+				Pattern: `([a-zA-Z_][a-zA-Z0-9_]*)`,
+			},
+			{
+				Name:    "String",
+				Pattern: `'(?:\\.|[^'])*'`,
+			},
+			{
+				Name:    "Number",
+				Pattern: `[0-9]+`,
+			},
+			{
+				Name:    "Punct",
+				Pattern: `[,().]`,
+			},
+			{
+				Name:    "Whitespace",
+				Pattern: `[ \t\n\r]+`,
+			},
+			{
+				Name:    "ArmFunctionEnd",
+				Pattern: `\]`,
+				Action:  lexer.Pop(),
+			},
 		},
 	})
 }
