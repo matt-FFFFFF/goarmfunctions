@@ -17,10 +17,44 @@ func TestArmParser(t *testing.T) {
 		evalErr  error
 	}{
 		{
-			desc:     "Just a string",
-			ctx:      EvalContext{},
+			desc:     "String literal",
+			ctx:      nil,
 			in:       "Just a string",
 			expected: "Just a string",
+			parseErr: nil,
+			evalErr:  nil,
+		},
+		{
+			desc:     "Whitespace",
+			ctx:      nil,
+			in:       " ",
+			expected: " ",
+			parseErr: nil,
+			evalErr:  nil,
+		},
+		{
+			desc:     "Embedded function",
+			ctx:      nil,
+			in:       "foo[if(true, 1, 2)]bar",
+			expected: "foo1bar",
+			parseErr: nil,
+			evalErr:  nil,
+		},
+		{
+			desc: "Multiple embedded functions",
+			ctx: EvalContext{
+				"test": "testvalue",
+			},
+			in:       "foo [if(true, 1, 2)] bar [parameters('test')] baz",
+			expected: "foo 1 bar testvalue baz",
+			parseErr: nil,
+			evalErr:  nil,
+		},
+		{
+			desc:     "symbols",
+			ctx:      nil,
+			in:       "!@£$%^&*()",
+			expected: "!@£$%^&*()",
 			parseErr: nil,
 			evalErr:  nil,
 		},
