@@ -2,6 +2,7 @@ package armparser
 
 import "fmt"
 
+// Parameters returns the value of a parameter from the context.
 func Parameters(f *FunctionCall, ctx EvalContext) (interface{}, error) {
 	if len(f.Args) != 1 || f.Args[0].String == nil {
 		return nil, fmt.Errorf("parameters function requires a single string argument")

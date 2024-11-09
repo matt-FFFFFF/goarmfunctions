@@ -21,17 +21,12 @@ func main() {
 		fmt.Printf("Type: %s, Value: %s\n", t2s[tok.Type], tok.Value)
 	}
 	parser := armparser.New()
+
 	ast, err := parser.ParseString("test", example)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	if ast.Expression != nil && ast.Expression.FunctionCall != nil {
-		fmt.Printf("Function Name: %s\n", ast.Expression.FunctionCall.Name)
-		for i, arg := range ast.Expression.FunctionCall.Args {
-			fmt.Printf("Arg %d: %+v\n", i, arg)
-		}
-	}
 	val, err := ast.Expression.Evaluate(armparser.EvalContext{
 		"dnsZoneSubscriptionId": "test",
 		"test1":                 "test1",

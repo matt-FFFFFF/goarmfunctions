@@ -2,6 +2,7 @@ package armparser
 
 import "fmt"
 
+// Equals returns true if the first argument is equal to the second argument.
 func Equals(f *FunctionCall, ctx EvalContext) (interface{}, error) {
 	if len(f.Args) != 2 {
 		return nil, fmt.Errorf("equals function requires 2 arguments")
