@@ -2,6 +2,7 @@ package armparser
 
 import "github.com/matt-FFFFFF/goarmfunctions/armlexer"
 
+// EvalContext is used to pass parameter names and values to the ARM function evaluator.
 type EvalContext map[string]any
 
 // ArmValue is the root node of the ARM function AST.
