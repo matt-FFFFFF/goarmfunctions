@@ -22,6 +22,7 @@ For example, the `format()` function does not support format specifiers.
 - `if()`
 - `parameters()`
 - `replace()`
+- `toLower()`
 
 ## Example
 

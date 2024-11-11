@@ -69,6 +69,8 @@ func (f *FunctionCall) Evaluate(ctx context.Context, evalCtx EvalContext) (any, 
 		return Format(ctx, f, evalCtx)
 	case "replace":
 		return Replace(ctx, f, evalCtx)
+	case "toLower":
+		return ToLower(ctx, f, evalCtx)
 	}
 	lgr.Error("unknown function", slog.String("function", f.Name))
 	return nil, fmt.Errorf("unknown function: %s", f.Name)
