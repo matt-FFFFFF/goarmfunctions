@@ -1,18 +1,12 @@
-package main
+package goarmfunctions
 
 import (
+	"context"
 	"fmt"
-
-	"github.com/matt-FFFFFF/goarmfunctions/armparser"
 )
 
-func ExampleBasicUsage() {
-	parser := armparser.New()
-	f, err := parser.ParseString("example", "[if(equals('a', 'b'), 'a is equal to b', 'a is not equal to b')]")
-	if err != nil {
-		panic(err)
-	}
-	result, err := f.Evaluate(nil)
+func ExampleLexAndParse() {
+	result, err := LexAndParse(context.Background(), "[if(equals('a', 'b'), 'a is equal to b', 'a is not equal to b')]", nil, nil)
 	if err != nil {
 		panic(err)
 	}

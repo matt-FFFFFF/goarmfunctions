@@ -49,7 +49,12 @@ func New() lexer.Definition {
 			},
 			{
 				Name:    "Whitespace",
-				Pattern: `[ \t\n\r]+`,
+				Pattern: `[ \t]+`,
+			},
+			{
+				Name:    "ArmFunctionStart",
+				Pattern: `\[`,
+				Action:  lexer.Push("armfunction"),
 			},
 			{
 				Name:    "ArmFunctionEnd",

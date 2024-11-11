@@ -1,8 +1,10 @@
 package armparser
 
 import (
+	"context"
 	"testing"
 
+	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -60,17 +62,17 @@ func TestArmParser(t *testing.T) {
 			evalErr:  nil,
 		},
 		{
-			desc:     "double function",
+			desc:     "nested function",
 			ctx:      nil,
 			in:       "[if(true, [if(true, 1, 2)], 3)]",
 			expected: nil,
-			parseErr: &lexer.Error{
-				Msg: "invalid input text \"[if(true, 1, 2)]...\"",
+			parseErr: &participle.ParseError{
+				Msg: "sub-expression ArmTemplatePart+ must match at least once",
 				Pos: lexer.Position{
 					Filename: "test",
-					Offset:   10,
+					Offset:   0,
 					Line:     1,
-					Column:   11,
+					Column:   1,
 				},
 			},
 			evalErr: nil,
@@ -84,7 +86,7 @@ func TestArmParser(t *testing.T) {
 			if err != nil {
 				return
 			}
-			got, err := f.Evaluate(tC.ctx)
+			got, err := f.Evaluate(context.Background(), tC.ctx)
 			require.Equalf(t, tC.evalErr, err, "eval error not equal: %v", err)
 			if err != nil {
 				return

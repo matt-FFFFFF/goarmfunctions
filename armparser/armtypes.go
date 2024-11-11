@@ -42,7 +42,13 @@ type Expression struct {
 // FunctionCall is a node in the ARM function AST.
 // It represents a function call with a name and optional arguments.
 type FunctionCall struct {
-	Name    string        `@Ident`
-	Args    []*Expression `"(" ( @@ ( "," @@ )* )? ")"`
-	Members []string      `( "." @Ident )*` // Capture additional members in a slice
+	Name       string              `@Ident`
+	Args       []*Expression       `"(" ( @@ ( "," @@ )* )? ")"`
+	MembersStr []*StringExpression `  ( "[" @@ "]" )*` // Capture additional member access by `['foo']` in a slice
+	MembersDot []string            `  ( "." @Ident )*` // Capture additional members in a slice
+}
+
+type StringExpression struct {
+	String       *string       `@String`
+	FunctionCall *FunctionCall `| @@`
 }

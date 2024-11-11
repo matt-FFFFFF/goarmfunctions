@@ -6,8 +6,6 @@ It is a work in progress and not all functions are implemented yet, and may neve
 Some functions are implemented in a way that they are not 100% compatible with the ARM template functions.
 For example, the `format()` function does not support format specifiers.
 
-Finally, at the moment all the output is a string. This may change in the future as the evolves.s
-
 ## Comparison Functions
 
 - `equals()`
@@ -26,12 +24,7 @@ Finally, at the moment all the output is a string. This may change in the future
 ## Example
 
 ```go
-parser := armparser.New()
-f, err := parser.ParseString("example", "[if(equals('a', 'b'), 'a is equal to b', 'a is not equal to b')]")
-if err != nil {
-  panic(err)
-}
-result, err := f.Evaluate(nil)
+result, err := LexAndParse(context.Background(), "[if(equals('a', 'b'), 'a is equal to b', 'a is not equal to b')]", nil, nil)
 if err != nil {
   panic(err)
 }
