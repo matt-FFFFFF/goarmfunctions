@@ -23,7 +23,6 @@ For example, the `format()` function does not support format specifiers.
 ## String Functions
 
 - `format()`
-- `parameters()`
 - `replace()`
 - `toLower()`
 
