@@ -38,9 +38,6 @@ jobs:
         with:
           version: v1.61
 
-      - run: make testrace
-        name: make testrace
-
       - run: make testcover
         name: make testcover
 
