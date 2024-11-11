@@ -17,7 +17,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   test:
@@ -34,8 +33,10 @@ jobs:
           go-version-file: "go.mod"
           cache: true
 
-      - run: make lint
-        name: make lint
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@971e284b6050e8a5849b72094c50ab08da042db8 # v6.1.1
+        with:
+          version: v1.61
 
       - run: make testrace
         name: make testrace
