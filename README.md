@@ -1,5 +1,7 @@
 # goarmfunctions
 
+[![codecov](https://codecov.io/gh/matt-FFFFFF/goarmfunctions/graph/badge.svg?token=H99ZJZ0E1B)](https://codecov.io/gh/matt-FFFFFF/goarmfunctions)
+
 This go module provides an implementation of some ARM template functions in Go.
 It is a work in progress and not all functions are implemented yet, and may never be.
 
