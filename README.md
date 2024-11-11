@@ -16,10 +16,13 @@ For example, the `format()` function does not support format specifiers.
 
 - `parameters()`
 
+## Logical Functions
+
+- `if()`
+
 ## String Functions
 
 - `format()`
-- `if()`
 - `parameters()`
 - `replace()`
 - `toLower()`
