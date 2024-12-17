@@ -57,5 +57,5 @@ func Concat(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, err
 		}
 		return a, nil
 	}
-	return nil, errors.New("Concat - Unsupported argument, please supply string or array")
+	return nil, errors.New("Concat - Unsupported argument, please supply a string or an array")
 }
