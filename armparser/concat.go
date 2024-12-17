@@ -37,7 +37,7 @@ func Concat(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, err
 			strS, ok := str.(string)
 			if !ok {
 				lgr.Error("Concat - Argument is not a string", slog.Any("argument", str))
-				return nil, fmt.Errorf("Concat all argument must of same type, got %T", str)
+				return nil, fmt.Errorf("Concat all arguments must be of the same type, got %T", str)
 			}
 			sb.WriteString(strS)
 		}
