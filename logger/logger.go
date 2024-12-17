@@ -21,8 +21,8 @@ type Logger interface {
 	Warn(msg string, fields ...any)                     // Warn logs a message at the warn level.
 }
 
-// GetLogger returns the logger from the context or a default logger if none is found.
-func GetLogger(ctx context.Context) Logger {
+// LoggerFromContext returns the logger from the context or a default logger if none is found.
+func LoggerFromContext(ctx context.Context) Logger {
 	if logger, ok := ctx.Value(LoggerContextKey).(Logger); ok {
 		return logger
 	}

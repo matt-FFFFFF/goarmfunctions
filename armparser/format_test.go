@@ -71,6 +71,6 @@ func TestFormat(t *testing.T) {
 			err:      errors.New("token {2} not found in format string"),
 		},
 	}
-	ctx := context.WithValue(context.Background(), logger.LoggerContextKey, logger.GetLogger(context.Background()))
+	ctx := context.WithValue(context.Background(), logger.LoggerContextKey, logger.LoggerFromContext(context.Background()))
 	runFunctionTest(ctx, t, tcs)
 }

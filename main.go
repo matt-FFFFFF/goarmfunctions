@@ -12,7 +12,7 @@ import (
 
 func LexAndParse(ctx context.Context, s string, evalCtx armparser.EvalContext, lgr logger.Logger) (any, error) {
 	if lgr == nil {
-		lgr = logger.GetLogger(ctx)
+		lgr = logger.LoggerFromContext(ctx)
 	}
 	ctx = context.WithValue(ctx, logger.LoggerContextKey, lgr)
 	lgr.Debug("LexAndParse", slog.String("input", s), slog.Any("evalCtx", evalCtx))

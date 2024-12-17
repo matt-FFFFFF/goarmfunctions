@@ -13,7 +13,7 @@ import (
 // The function signature is:
 // replace(original, old, new)
 func Replace(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("Replace", slog.Any("args", f.Args))
 	defer lgr.Debug("Replace done")
 	if len(f.Args) != 3 {
