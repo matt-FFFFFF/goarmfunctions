@@ -45,7 +45,7 @@ func TestConcat(t *testing.T) {
 			err:      nil,
 		},
 		{
-			desc: "Concat arrays wth string, error",
+			desc: "Concat arrays with string, error",
 			in:   "[concat(parameters('firstArray'), parameters('secondArray'))]",
 			ctx: EvalContext{
 				"firstArray":  []any{"1-1", "1-2", "1-3"},
