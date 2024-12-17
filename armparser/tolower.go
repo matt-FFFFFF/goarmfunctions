@@ -12,9 +12,9 @@ import (
 // ToLower converts the input string to lower case.
 // Function signature: toLower('string')
 func ToLower(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
-	lgr.Debug("If", slog.Any("args", f.Args))
-	defer lgr.Debug("If done")
+	lgr := logger.LoggerFromContext(ctx)
+	lgr.Debug("ToLower", slog.Any("args", f.Args))
+	defer lgr.Debug("ToLower done")
 	if len(f.Args) != 1 {
 		lgr.Error("ToLower - Invalid number of arguments", slog.Int("expected", 1), slog.Int("actual", len(f.Args)))
 		return nil, NewArgumentError("toLower", 1, len(f.Args))

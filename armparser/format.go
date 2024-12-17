@@ -14,7 +14,7 @@ import (
 // Note this function does not support String.Format composite formatting options like .NET (https://learn.microsoft.com/dotnet/standard/base-types/composite-formatting).
 // It currently only supports strings.
 func Format(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("Format", slog.Any("args", f.Args))
 	defer lgr.Debug("Format done")
 	if len(f.Args) < 2 {

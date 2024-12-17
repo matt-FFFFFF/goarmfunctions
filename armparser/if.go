@@ -10,7 +10,7 @@ import (
 
 // If evaluates the first argument and returns the second argument if it is true, otherwise it returns the third argument.
 func If(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("If", slog.Any("args", f.Args))
 	defer lgr.Debug("If done")
 	if len(f.Args) != 3 {

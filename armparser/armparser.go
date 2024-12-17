@@ -23,14 +23,14 @@ func New() *participle.Parser[ArmValue] {
 }
 
 func (a *ArmValue) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("ArmValue.Evaluate")
 	defer lgr.Debug("ArmValue.Evaluate done")
 	return a.ArmTemplateString.Evaluate(ctx, evalCtx)
 }
 
 func (t *ArmTemplateString) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("ArmTemplateString.Evaluate")
 	defer lgr.Debug("ArmTemplateString.Evaluate done")
 	var result strings.Builder
@@ -55,7 +55,7 @@ func (t *ArmTemplateString) Evaluate(ctx context.Context, evalCtx EvalContext) (
 
 // Evaluate evaluates the ARM function AST.
 func (f *FunctionCall) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("FunctionCall.Evaluate", slog.String("identifier", f.Name))
 	defer lgr.Debug("FunctionCall.Evaluate done")
 	switch f.Name {
@@ -71,13 +71,15 @@ func (f *FunctionCall) Evaluate(ctx context.Context, evalCtx EvalContext) (any, 
 		return Replace(ctx, f, evalCtx)
 	case "toLower":
 		return ToLower(ctx, f, evalCtx)
+	case "concat":
+		return Concat(ctx, f, evalCtx)
 	}
 	lgr.Error("unknown function", slog.String("function", f.Name))
 	return nil, fmt.Errorf("unknown function: %s", f.Name)
 }
 
 func (e *Expression) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("Expression.Evaluate",
 		slog.String("string", fmt.Sprintf("%v", e.String)),
 		slog.String("number", fmt.Sprintf("%v", e.Number)),
@@ -104,7 +106,7 @@ func (e *Expression) Evaluate(ctx context.Context, evalCtx EvalContext) (any, er
 }
 
 func (e *StringExpression) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("StringExpression.Evaluate",
 		slog.String("string", fmt.Sprintf("%v", e.String)),
 	)

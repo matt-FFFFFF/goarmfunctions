@@ -10,7 +10,7 @@ import (
 
 // Equals returns true if the first argument is equal to the second argument.
 func Equals(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("Equals",
 		slog.Any("args", slog.Any("args", f.Args)),
 	)

@@ -14,7 +14,7 @@ import (
 // If you want to use a function as a member, you can use square brackets.
 // For example, `parameters('foo')[if(true, 'bar', 'bat')]` would return the value of `ctx['foo']“, then access the property with the key returned by the `if` function.
 func Parameters(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) {
-	lgr := logger.GetLogger(ctx)
+	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("Parameters", slog.Any("args", f.Args))
 	defer lgr.Debug("Parameters done")
 	if len(f.Args) != 1 || f.Args[0].String == nil {
