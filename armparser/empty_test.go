@@ -2,6 +2,7 @@ package armparser
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/matt-FFFFFF/goarmfunctions/logger"
@@ -9,6 +10,20 @@ import (
 
 func TestEmpty(t *testing.T) {
 	tcs := testCases{
+		{
+			desc:     "Wrong number of arguments",
+			in:       "[empty('', '')]",
+			ctx:      nil,
+			expected: true,
+			err:      NewArgumentError("empty", 1, 2),
+		},
+		{
+			desc:     "Cannot evaluate arg",
+			in:       "[empty(parameters(''))]",
+			ctx:      nil,
+			expected: true,
+			err:      errors.New("parameter  not found"),
+		},
 		{
 			desc:     "Empty string",
 			in:       "[empty('')]",
