@@ -13,7 +13,7 @@ import (
 func Empty(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) {
 	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("Empty", slog.Any("args", f.Args))
-	defer lgr.Debug("Concat done")
+	defer lgr.Debug("Empty done")
 	if len(f.Args) != 1 {
 		lgr.Error("Empty - Invalid number of arguments", slog.Int("expected", 1), slog.Int("actual", len(f.Args)))
 		return nil, NewArgumentError("empty", 1, len(f.Args))
