@@ -11,6 +11,13 @@ import (
 func TestEmpty(t *testing.T) {
 	tcs := testCases{
 		{
+			desc:     "Unsupported argument",
+			in:       "[empty(1)]",
+			ctx:      nil,
+			expected: true,
+			err:      errors.New("Empty - Unsupported argument, please supply an object, string or an array"),
+		},
+		{
 			desc:     "Wrong number of arguments",
 			in:       "[empty('', '')]",
 			ctx:      nil,
