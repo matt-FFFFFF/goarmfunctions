@@ -16,7 +16,7 @@ func Empty(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, erro
 	defer lgr.Debug("Concat done")
 	if len(f.Args) != 1 {
 		lgr.Error("Empty - Invalid number of arguments", slog.Int("expected", 1), slog.Int("actual", len(f.Args)))
-		return nil, NewArgumentError("concat", 1, len(f.Args))
+		return nil, NewArgumentError("empty", 1, len(f.Args))
 	}
 	arg, err := f.Args[0].Evaluate(ctx, evalCtx)
 	if err != nil {
