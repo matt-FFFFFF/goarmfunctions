@@ -11,6 +11,7 @@ For example, the `format()` function does not support format specifiers.
 ## Array Functions
 
 - `concat()`
+- `empty()`
 
 ## Comparison Functions
 
