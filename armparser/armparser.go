@@ -73,6 +73,8 @@ func (f *FunctionCall) Evaluate(ctx context.Context, evalCtx EvalContext) (any, 
 		return ToLower(ctx, f, evalCtx)
 	case "concat":
 		return Concat(ctx, f, evalCtx)
+	case "empty":
+		return Empty(ctx, f, evalCtx)
 	}
 	lgr.Error("unknown function", slog.String("function", f.Name))
 	return nil, fmt.Errorf("unknown function: %s", f.Name)
