@@ -72,7 +72,13 @@ func (f *FunctionCall) Evaluate(ctx context.Context, evalCtx EvalContext, regist
 	// Store registry in context so function implementations can access it
 	// when they need to evaluate sub-expressions.
 	ctx = ContextWithRegistry(ctx, registry)
-	return fn(ctx, f, evalCtx)
+	result, err := fn(ctx, f, evalCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply member access (.dot and ['bracket']) on the function's return value.
+	return resolveMemberAccess(result, f.MembersDot, f.MembersStr, ctx, evalCtx, registry)
 }
 
 func (e *Expression) Evaluate(ctx context.Context, evalCtx EvalContext, registry *FuncRegistry) (any, error) {
