@@ -10,7 +10,7 @@ import (
 	"github.com/matt-FFFFFF/goarmfunctions/logger"
 )
 
-func LexAndParse(ctx context.Context, s string, evalCtx armparser.EvalContext, lgr logger.Logger) (any, error) {
+func LexAndParse(ctx context.Context, s string, evalCtx map[string]any, lgr logger.Logger) (any, error) {
 	if lgr == nil {
 		lgr = logger.LoggerFromContext(ctx)
 	}
@@ -37,5 +37,5 @@ func LexAndParse(ctx context.Context, s string, evalCtx armparser.EvalContext, l
 		lgr.Error("Parser error", slog.String("error", err.Error()))
 		return nil, err
 	}
-	return f.Evaluate(ctx, evalCtx)
+	return f.Evaluate(ctx, armparser.FromMap(evalCtx))
 }

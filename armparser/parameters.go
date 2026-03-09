@@ -10,9 +10,9 @@ import (
 
 // Parameters returns the value of a parameter from the context.
 // If the function results in an object with members, dot notation can be used to retrieve values.
-// For example, `parameters('foo').bar` would return the value of `ctx['foo']“, then access the `.bar` property.
+// For example, `parameters('foo').bar` would return the value of `ctx['foo']", then access the `.bar` property.
 // If you want to use a function as a member, you can use square brackets.
-// For example, `parameters('foo')[if(true, 'bar', 'bat')]` would return the value of `ctx['foo']“, then access the property with the key returned by the `if` function.
+// For example, `parameters('foo')[if(true, 'bar', 'bat')]` would return the value of `ctx['foo']", then access the property with the key returned by the `if` function.
 func Parameters(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) {
 	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("Parameters", slog.Any("args", f.Args))
@@ -22,7 +22,26 @@ func Parameters(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any,
 		return nil, NewArgumentError("parameters", 1, len(f.Args))
 	}
 	paramName := *f.Args[0].String
-	value, ok := evalCtx[paramName]
+
+	// Find the parameters scope and resolve the value.
+	// Strategy: find "parameters" scope, check _parameters map first, then fall back to direct lookup.
+	var value any
+	var ok bool
+
+	paramScope := FindScope(evalCtx, "parameters")
+	if paramScope != nil {
+		// Check for _parameters key (rich context with nested parameter definitions)
+		if params, found := paramScope.GetLocal("_parameters"); found {
+			if pm, isMap := params.(map[string]any); isMap {
+				value, ok = pm[paramName]
+			}
+		}
+		// Fall back to direct lookup on the scope (FromMap compatibility)
+		if !ok {
+			value, ok = paramScope.GetLocal(paramName)
+		}
+	}
+
 	if !ok {
 		lgr.Error("Parameters - Parameter not found", slog.String("parameter", paramName))
 		return nil, fmt.Errorf("parameter %s not found", paramName)

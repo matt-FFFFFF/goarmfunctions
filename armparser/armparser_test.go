@@ -13,7 +13,7 @@ import (
 func TestArmParser(t *testing.T) {
 	testCases := []struct {
 		desc     string
-		ctx      EvalContext
+		ctx      map[string]any
 		in       string
 		expected any
 		parseErr error
@@ -45,7 +45,7 @@ func TestArmParser(t *testing.T) {
 		},
 		{
 			desc: "multiple embedded functions",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"test": "testvalue",
 			},
 			in:       "foo [if(true, 1, 2)] bar [parameters('test')] baz",
@@ -86,7 +86,11 @@ func TestArmParser(t *testing.T) {
 			if err != nil {
 				return
 			}
-			got, err := f.Evaluate(context.Background(), tC.ctx)
+			var evalCtx EvalContext
+			if tC.ctx != nil {
+				evalCtx = FromMap(tC.ctx)
+			}
+			got, err := f.Evaluate(context.Background(), evalCtx)
 			require.Equalf(t, tC.evalErr, err, "eval error not equal: %v", err)
 			if err != nil {
 				return

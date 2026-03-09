@@ -27,7 +27,7 @@ func TestConcat(t *testing.T) {
 		{
 			desc: "Concat arrays",
 			in:   "[concat(parameters('firstArray'), parameters('secondArray'))]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"firstArray":  []any{"1-1", "1-2", "1-3"},
 				"secondArray": []any{"2-1", "2-2", "2-3"},
 			},
@@ -37,7 +37,7 @@ func TestConcat(t *testing.T) {
 		{
 			desc: "Concat arrays - not same type",
 			in:   "[concat(parameters('firstArray'), parameters('secondArray'))]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"firstArray":  []any{"1-1", "1-2", "1-3"},
 				"secondArray": []any{"2-1", "2-2", 1},
 			},
@@ -47,7 +47,7 @@ func TestConcat(t *testing.T) {
 		{
 			desc: "Concat arrays with string, error",
 			in:   "[concat(parameters('firstArray'), parameters('secondArray'))]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"firstArray":  []any{"1-1", "1-2", "1-3"},
 				"secondArray": "2-1",
 			},
