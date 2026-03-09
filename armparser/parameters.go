@@ -54,7 +54,7 @@ func Parameters(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any,
 	// First evaluate square bracket members
 	for i, member := range f.MembersStr {
 		lgr.Debug("Parameters - Evaluating square bracket member", slog.Any("member", *member), slog.Int("index", i))
-		memberValue, err := member.Evaluate(ctx, evalCtx)
+		memberValue, err := member.Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 		if err != nil {
 			lgr.Error("Parameters - Error evaluating square bracket member", slog.String("error", err.Error()))
 			return nil, err

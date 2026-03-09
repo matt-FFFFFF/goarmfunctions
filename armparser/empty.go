@@ -18,7 +18,7 @@ func Empty(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, erro
 		lgr.Error("Empty - Invalid number of arguments", slog.Int("expected", 1), slog.Int("actual", len(f.Args)))
 		return nil, NewArgumentError("empty", 1, len(f.Args))
 	}
-	arg, err := f.Args[0].Evaluate(ctx, evalCtx)
+	arg, err := f.Args[0].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}

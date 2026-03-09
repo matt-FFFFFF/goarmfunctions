@@ -44,7 +44,7 @@ func runFunctionTest(ctx context.Context, t *testing.T, tcs testCases) {
 			if tC.ctx != nil {
 				evalCtx = FromMap(tC.ctx)
 			}
-			result, err := f.Evaluate(ctx, evalCtx)
+			result, err := f.Evaluate(ctx, evalCtx, DefaultRegistry())
 			require.Equalf(t, tC.err, err, "unexpected evaluate error: %v", err)
 			if err != nil {
 				return

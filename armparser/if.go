@@ -17,7 +17,7 @@ func If(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) 
 		lgr.Error("If - Invalid number of arguments", slog.Int("expected", 3), slog.Int("actual", len(f.Args)))
 		return nil, NewArgumentError("if", 3, len(f.Args))
 	}
-	condition, err := f.Args[0].Evaluate(ctx, evalCtx)
+	condition, err := f.Args[0].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +28,8 @@ func If(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, error) 
 	}
 	if conditionB {
 		lgr.Debug("If - Returning true branch")
-		return f.Args[1].Evaluate(ctx, evalCtx)
+		return f.Args[1].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	}
 	lgr.Debug("If - Returning false branch")
-	return f.Args[2].Evaluate(ctx, evalCtx)
+	return f.Args[2].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 }

@@ -90,7 +90,7 @@ func TestArmParser(t *testing.T) {
 			if tC.ctx != nil {
 				evalCtx = FromMap(tC.ctx)
 			}
-			got, err := f.Evaluate(context.Background(), evalCtx)
+			got, err := f.Evaluate(context.Background(), evalCtx, DefaultRegistry())
 			require.Equalf(t, tC.evalErr, err, "eval error not equal: %v", err)
 			if err != nil {
 				return

@@ -19,12 +19,12 @@ func Equals(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, err
 		lgr.Error("Equals - Invalid number of arguments", slog.Int("expected", 2), slog.Int("actual", len(f.Args)))
 		return nil, NewArgumentError("equals", 2, len(f.Args))
 	}
-	arg1, err := f.Args[0].Evaluate(ctx, evalCtx)
+	arg1, err := f.Args[0].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		lgr.Error("Equals - Error evaluating first argument", slog.String("error", err.Error()))
 		return nil, err
 	}
-	arg2, err := f.Args[1].Evaluate(ctx, evalCtx)
+	arg2, err := f.Args[1].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		lgr.Error("Equals - Error evaluating second argument", slog.String("error", err.Error()))
 		return nil, err

@@ -10,17 +10,18 @@ import (
 	"github.com/matt-FFFFFF/goarmfunctions/logger"
 )
 
-func LexAndParse(ctx context.Context, s string, evalCtx map[string]any, lgr logger.Logger) (any, error) {
+// Evaluate parses and evaluates an ARM template expression with the given EvalContext and FuncRegistry.
+func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, registry *armparser.FuncRegistry, lgr logger.Logger) (any, error) {
 	if lgr == nil {
 		lgr = logger.LoggerFromContext(ctx)
 	}
 	ctx = context.WithValue(ctx, logger.LoggerContextKey, lgr)
-	lgr.Debug("LexAndParse", slog.String("input", s), slog.Any("evalCtx", evalCtx))
-	defer lgr.Debug("LexAndParse done")
+	lgr.Debug("Evaluate", slog.String("input", expr))
+	defer lgr.Debug("Evaluate done")
 	parser := armparser.New()
 	if lgr.Enabled(ctx, slog.LevelDebug) {
-		slog.DebugContext(ctx, "Lexing", slog.String("input", s))
-		reader := strings.NewReader(s)
+		slog.DebugContext(ctx, "Lexing", slog.String("input", expr))
+		reader := strings.NewReader(expr)
 		lexer, err := parser.Lexer().Lex("debug", reader)
 		if err != nil {
 			lgr.Error("Lexer error", slog.String("error", err.Error()))
@@ -31,11 +32,20 @@ func LexAndParse(ctx context.Context, s string, evalCtx map[string]any, lgr logg
 			lgr.Debug("Lexer token", slog.String("type", symbols[tok.Type]), slog.String("value", tok.Value))
 		}
 	}
-	lgr.Debug("Parsing", slog.String("input", s))
-	f, err := parser.ParseString("test", s)
+	lgr.Debug("Parsing", slog.String("input", expr))
+	f, err := parser.ParseString("test", expr)
 	if err != nil {
 		lgr.Error("Parser error", slog.String("error", err.Error()))
 		return nil, err
 	}
-	return f.Evaluate(ctx, armparser.FromMap(evalCtx))
+	if registry == nil {
+		registry = armparser.DefaultRegistry()
+	}
+	return f.Evaluate(ctx, evalCtx, registry)
+}
+
+// LexAndParse is a convenience wrapper that parses and evaluates an ARM template expression
+// using a map-based evaluation context and the default function registry.
+func LexAndParse(ctx context.Context, s string, evalCtx map[string]any, lgr logger.Logger) (any, error) {
+	return Evaluate(ctx, s, armparser.FromMap(evalCtx), nil, lgr)
 }

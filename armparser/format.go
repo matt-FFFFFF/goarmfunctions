@@ -22,14 +22,14 @@ func Format(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, err
 		return nil, NewArgumentError("format", 2, len(f.Args))
 	}
 	lgr.Debug("Evaluating format string")
-	format, err := f.Args[0].Evaluate(ctx, evalCtx)
+	format, err := f.Args[0].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		lgr.Error("Format - Error evaluating format string", slog.String("error", err.Error()))
 		return nil, err
 	}
 	for i, arg := range f.Args[1:] {
 		lgr.Debug("Format - Evaluating argument", slog.Int("index", i+1))
-		val, err := arg.Evaluate(ctx, evalCtx)
+		val, err := arg.Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 		if err != nil {
 			lgr.Error("Format - Error evaluating argument", slog.Int("index", i+1), slog.String("error", err.Error()))
 			return nil, err
