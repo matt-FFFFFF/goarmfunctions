@@ -54,28 +54,6 @@ func (c *lruCache) load(key string) (any, bool) {
 	}
 	return nil, false
 }
-
-// store adds or updates a value in the cache.
-// If the cache is at capacity, the least recently used entry is evicted.
-func (c *lruCache) store(key string, value any) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if elem, ok := c.items[key]; ok {
-		c.order.MoveToFront(elem)
-		elem.Value.(*lruEntry).value = value
-		return
-	}
-
-	if c.order.Len() >= c.capacity {
-		c.evictOldest()
-	}
-
-	entry := &lruEntry{key: key, value: value}
-	elem := c.order.PushFront(entry)
-	c.items[key] = elem
-}
-
 // evictOldest removes the least recently used entry. Must be called with mu held.
 func (c *lruCache) evictOldest() {
 	oldest := c.order.Back()
