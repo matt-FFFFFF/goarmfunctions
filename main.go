@@ -4,11 +4,16 @@ import (
 	"context"
 	"log/slog"
 	"strings"
+	"sync"
 
 	"github.com/matt-FFFFFF/goarmfunctions/armlexer"
 	"github.com/matt-FFFFFF/goarmfunctions/armparser"
 	"github.com/matt-FFFFFF/goarmfunctions/logger"
 )
+
+// parseCache caches parsed ARM expressions by their string representation.
+// This avoids re-parsing the same expression multiple times.
+var parseCache sync.Map
 
 // Evaluate parses and evaluates an ARM template expression with the given EvalContext and FuncRegistry.
 func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, registry *armparser.FuncRegistry, lgr logger.Logger) (any, error) {
@@ -18,7 +23,7 @@ func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, r
 	ctx = context.WithValue(ctx, logger.LoggerContextKey, lgr)
 	lgr.Debug("Evaluate", slog.String("input", expr))
 	defer lgr.Debug("Evaluate done")
-	parser := armparser.New()
+	parser := armparser.SharedParser()
 	if lgr.Enabled(ctx, slog.LevelDebug) {
 		slog.DebugContext(ctx, "Lexing", slog.String("input", expr))
 		reader := strings.NewReader(expr)
@@ -33,11 +38,20 @@ func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, r
 		}
 	}
 	lgr.Debug("Parsing", slog.String("input", expr))
-	f, err := parser.ParseString("test", expr)
-	if err != nil {
-		lgr.Error("Parser error", slog.String("error", err.Error()))
-		return nil, err
+
+	var f *armparser.ArmValue
+	if cached, ok := parseCache.Load(expr); ok {
+		f = cached.(*armparser.ArmValue)
+	} else {
+		var err error
+		f, err = parser.ParseString("", expr)
+		if err != nil {
+			lgr.Error("Parser error", slog.String("error", err.Error()))
+			return nil, err
+		}
+		parseCache.Store(expr, f)
 	}
+
 	if registry == nil {
 		registry = armparser.DefaultRegistry()
 	}

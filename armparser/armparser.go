@@ -5,10 +5,16 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
 
 	"github.com/alecthomas/participle/v2"
 	"github.com/matt-FFFFFF/goarmfunctions/armlexer"
 	"github.com/matt-FFFFFF/goarmfunctions/logger"
+)
+
+var (
+	parserOnce   sync.Once
+	sharedParser *participle.Parser[ArmValue]
 )
 
 // New returns a new ARM function parser.
@@ -20,6 +26,15 @@ func New() *participle.Parser[ArmValue] {
 		participle.Elide("Whitespace"),
 		participle.UseLookahead(5),
 	)
+}
+
+// SharedParser returns a shared parser instance.
+// It is safe for concurrent use.
+func SharedParser() *participle.Parser[ArmValue] {
+	parserOnce.Do(func() {
+		sharedParser = New()
+	})
+	return sharedParser
 }
 
 func (a *ArmValue) Evaluate(ctx context.Context, evalCtx EvalContext, registry *FuncRegistry) (any, error) {
