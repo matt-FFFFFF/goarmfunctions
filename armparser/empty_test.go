@@ -55,7 +55,7 @@ func TestEmpty(t *testing.T) {
 		{
 			desc: "Empty array",
 			in:   "[empty(parameters('array'))]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"array": []any{},
 			},
 			expected: true,
@@ -64,7 +64,7 @@ func TestEmpty(t *testing.T) {
 		{
 			desc: "Not empty array",
 			in:   "[empty(parameters('array'))]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"array": []any{1, 2, 3},
 			},
 			expected: false,
@@ -73,7 +73,7 @@ func TestEmpty(t *testing.T) {
 		{
 			desc: "Empty object",
 			in:   "[empty(parameters('object'))]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"object": map[string]any{},
 			},
 			expected: true,
@@ -82,7 +82,7 @@ func TestEmpty(t *testing.T) {
 		{
 			desc: "Not empty object",
 			in:   "[empty(parameters('object'))]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"object": map[string]any{"key": "value"},
 			},
 			expected: false,

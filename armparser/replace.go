@@ -20,17 +20,17 @@ func Replace(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, er
 		lgr.Error("Replace - Invalid number of arguments", slog.Int("expected", 3), slog.Int("actual", len(f.Args)))
 		return nil, NewArgumentError("replace", 3, len(f.Args))
 	}
-	original, err := f.Args[0].Evaluate(ctx, evalCtx)
+	original, err := f.Args[0].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		lgr.Error("Replace - Error evaluating original string", slog.String("error", err.Error()))
 		return nil, err
 	}
-	old, err := f.Args[1].Evaluate(ctx, evalCtx)
+	old, err := f.Args[1].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		lgr.Error("Replace - Error evaluating old string", slog.String("error", err.Error()))
 		return nil, err
 	}
-	new, err := f.Args[2].Evaluate(ctx, evalCtx)
+	new, err := f.Args[2].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		lgr.Error("Replace - Error evaluating new string", slog.String("error", err.Error()))
 		return nil, err

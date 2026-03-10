@@ -41,14 +41,14 @@ func TestFormat(t *testing.T) {
 		{
 			desc:     "one token nested function",
 			in:       "[format('Hello {0}', parameters('foo'))]",
-			ctx:      EvalContext{"foo": "world"},
+			ctx:      map[string]any{"foo": "world"},
 			expected: "Hello world",
 			err:      nil,
 		},
 		{
 			desc:     "not enough arguments",
 			in:       "[format('Hello {0}')]",
-			ctx:      EvalContext{"foo": "world"},
+			ctx:      map[string]any{"foo": "world"},
 			expected: "",
 			err: &ArgumentError{
 				function: "format",
@@ -59,14 +59,14 @@ func TestFormat(t *testing.T) {
 		{
 			desc:     "repeated token",
 			in:       "[format('Hello {0} {0}', 'world')]",
-			ctx:      EvalContext{"foo": "world"},
+			ctx:      map[string]any{"foo": "world"},
 			expected: "",
 			err:      errors.New("token {0} still found in format string after replacement"),
 		},
 		{
 			desc:     "not enough tokens in string",
 			in:       "[format('{0} {1}', 'Hello', 'world', 'missing')]",
-			ctx:      EvalContext{"foo": "world"},
+			ctx:      map[string]any{"foo": "world"},
 			expected: "",
 			err:      errors.New("token {2} not found in format string"),
 		},

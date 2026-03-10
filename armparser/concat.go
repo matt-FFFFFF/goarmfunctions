@@ -20,7 +20,7 @@ func Concat(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, err
 		lgr.Error("Concat - Invalid number of arguments", slog.Int("expected", 2), slog.Int("actual", len(f.Args)))
 		return nil, NewArgumentError("concat", 2, len(f.Args))
 	}
-	argZero, err := f.Args[0].Evaluate(ctx, evalCtx)
+	argZero, err := f.Args[0].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func Concat(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, err
 		sb := strings.Builder{}
 		sb.WriteString(a)
 		for i := 1; i < len(f.Args); i++ {
-			str, err := f.Args[i].Evaluate(ctx, evalCtx)
+			str, err := f.Args[i].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 			if err != nil {
 				return nil, err
 			}
@@ -44,7 +44,7 @@ func Concat(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, err
 		return sb.String(), nil
 	case []any:
 		for i := 1; i < len(f.Args); i++ {
-			arr, err := f.Args[i].Evaluate(ctx, evalCtx)
+			arr, err := f.Args[i].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 			arrA, ok := arr.([]any)
 			if !ok {
 				lgr.Error("Concat - Argument is not an array", slog.Any("argument", arr))

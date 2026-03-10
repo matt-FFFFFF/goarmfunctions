@@ -15,7 +15,7 @@ import (
 type testCases []struct {
 	desc     string
 	in       string
-	ctx      EvalContext
+	ctx      map[string]any
 	expected any
 	err      error
 }
@@ -40,7 +40,11 @@ func runFunctionTest(ctx context.Context, t *testing.T, tcs testCases) {
 			}
 			f, err := parser.ParseString("test", tC.in)
 			require.NoError(t, err)
-			result, err := f.Evaluate(ctx, tC.ctx)
+			var evalCtx EvalContext
+			if tC.ctx != nil {
+				evalCtx = FromMap(tC.ctx)
+			}
+			result, err := f.Evaluate(ctx, evalCtx, DefaultRegistry())
 			require.Equalf(t, tC.err, err, "unexpected evaluate error: %v", err)
 			if err != nil {
 				return

@@ -22,14 +22,14 @@ func New() *participle.Parser[ArmValue] {
 	)
 }
 
-func (a *ArmValue) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
+func (a *ArmValue) Evaluate(ctx context.Context, evalCtx EvalContext, registry *FuncRegistry) (any, error) {
 	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("ArmValue.Evaluate")
 	defer lgr.Debug("ArmValue.Evaluate done")
-	return a.ArmTemplateString.Evaluate(ctx, evalCtx)
+	return a.ArmTemplateString.Evaluate(ctx, evalCtx, registry)
 }
 
-func (t *ArmTemplateString) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
+func (t *ArmTemplateString) Evaluate(ctx context.Context, evalCtx EvalContext, registry *FuncRegistry) (any, error) {
 	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("ArmTemplateString.Evaluate")
 	defer lgr.Debug("ArmTemplateString.Evaluate done")
@@ -39,7 +39,7 @@ func (t *ArmTemplateString) Evaluate(ctx context.Context, evalCtx EvalContext) (
 			result.WriteString(*part.Literal)
 		}
 		if part.Expression != nil {
-			value, err := part.Expression.Evaluate(ctx, evalCtx)
+			value, err := part.Expression.Evaluate(ctx, evalCtx, registry)
 			if err != nil {
 				return "", err
 			}
@@ -54,33 +54,34 @@ func (t *ArmTemplateString) Evaluate(ctx context.Context, evalCtx EvalContext) (
 }
 
 // Evaluate evaluates the ARM function AST.
-func (f *FunctionCall) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
+func (f *FunctionCall) Evaluate(ctx context.Context, evalCtx EvalContext, registry *FuncRegistry) (any, error) {
 	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("FunctionCall.Evaluate", slog.String("identifier", f.Name))
 	defer lgr.Debug("FunctionCall.Evaluate done")
-	switch f.Name {
-	case "if":
-		return If(ctx, f, evalCtx)
-	case "equals":
-		return Equals(ctx, f, evalCtx)
-	case "parameters":
-		return Parameters(ctx, f, evalCtx)
-	case "format":
-		return Format(ctx, f, evalCtx)
-	case "replace":
-		return Replace(ctx, f, evalCtx)
-	case "toLower":
-		return ToLower(ctx, f, evalCtx)
-	case "concat":
-		return Concat(ctx, f, evalCtx)
-	case "empty":
-		return Empty(ctx, f, evalCtx)
+
+	if registry == nil {
+		registry = DefaultRegistry()
 	}
-	lgr.Error("unknown function", slog.String("function", f.Name))
-	return nil, fmt.Errorf("unknown function: %s", f.Name)
+
+	fn, ok := registry.Lookup(f.Name)
+	if !ok {
+		lgr.Error("unknown function", slog.String("function", f.Name))
+		return nil, fmt.Errorf("unknown function: %s", f.Name)
+	}
+
+	// Store registry in context so function implementations can access it
+	// when they need to evaluate sub-expressions.
+	ctx = ContextWithRegistry(ctx, registry)
+	result, err := fn(ctx, f, evalCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply member access (.dot and ['bracket']) on the function's return value.
+	return resolveMemberAccess(result, f.MembersDot, f.MembersStr, ctx, evalCtx, registry)
 }
 
-func (e *Expression) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
+func (e *Expression) Evaluate(ctx context.Context, evalCtx EvalContext, registry *FuncRegistry) (any, error) {
 	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("Expression.Evaluate",
 		slog.String("string", fmt.Sprintf("%v", e.String)),
@@ -98,7 +99,7 @@ func (e *Expression) Evaluate(ctx context.Context, evalCtx EvalContext) (any, er
 		return bool(*e.Boolean), nil
 	}
 	if e.FunctionCall != nil {
-		return e.FunctionCall.Evaluate(ctx, evalCtx)
+		return e.FunctionCall.Evaluate(ctx, evalCtx, registry)
 	}
 	lgr.Error(
 		"unsupported expression type",
@@ -107,7 +108,7 @@ func (e *Expression) Evaluate(ctx context.Context, evalCtx EvalContext) (any, er
 	return nil, fmt.Errorf("unsupported expression type")
 }
 
-func (e *StringExpression) Evaluate(ctx context.Context, evalCtx EvalContext) (any, error) {
+func (e *StringExpression) Evaluate(ctx context.Context, evalCtx EvalContext, registry *FuncRegistry) (any, error) {
 	lgr := logger.LoggerFromContext(ctx)
 	lgr.Debug("StringExpression.Evaluate",
 		slog.String("string", fmt.Sprintf("%v", e.String)),
@@ -117,7 +118,7 @@ func (e *StringExpression) Evaluate(ctx context.Context, evalCtx EvalContext) (a
 		return *e.String, nil
 	}
 	if e.FunctionCall != nil {
-		return e.FunctionCall.Evaluate(ctx, evalCtx)
+		return e.FunctionCall.Evaluate(ctx, evalCtx, registry)
 	}
 	lgr.Error(
 		"unsupported expression type",

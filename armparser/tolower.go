@@ -19,7 +19,7 @@ func ToLower(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, er
 		lgr.Error("ToLower - Invalid number of arguments", slog.Int("expected", 1), slog.Int("actual", len(f.Args)))
 		return nil, NewArgumentError("toLower", 1, len(f.Args))
 	}
-	str, err := f.Args[0].Evaluate(ctx, evalCtx)
+	str, err := f.Args[0].Evaluate(ctx, evalCtx, RegistryFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ func TestParameters(t *testing.T) {
 		{
 			desc: "parameter found",
 			in:   "[parameters('foo')]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"foo": "1",
 			},
 			expected: "1",
@@ -21,7 +21,7 @@ func TestParameters(t *testing.T) {
 		{
 			desc: "parameter member dot access",
 			in:   "[parameters('foo').bar]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"foo": map[string]any{
 					"bar": "1",
 				},
@@ -32,7 +32,7 @@ func TestParameters(t *testing.T) {
 		{
 			desc: "parameter multiple member dot access",
 			in:   "[parameters('foo').bar.bat]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"foo": map[string]any{
 					"bar": map[string]any{
 						"bat": "1",
@@ -45,7 +45,7 @@ func TestParameters(t *testing.T) {
 		{
 			desc: "parameter member square bracket access",
 			in:   "[parameters('foo')['bar']]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"foo": map[string]any{
 					"bar": "1",
 				},
@@ -56,7 +56,7 @@ func TestParameters(t *testing.T) {
 		{
 			desc: "parameter member square bracket nested function",
 			in:   "[parameters('foo')[if(true, 'bar', 'bat')]]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"foo": map[string]any{
 					"bar": "1",
 				},
@@ -67,7 +67,7 @@ func TestParameters(t *testing.T) {
 		{
 			desc: "parameter member multiple square bracket access",
 			in:   "[parameters('foo')['bar']['bat']]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"foo": map[string]any{
 					"bar": map[string]any{
 						"bat": "1",
@@ -80,7 +80,7 @@ func TestParameters(t *testing.T) {
 		{
 			desc: "parameter mixed multiple square bracket access",
 			in:   "[parameters('foo')['bar'].bat]",
-			ctx: EvalContext{
+			ctx: map[string]any{
 				"foo": map[string]any{
 					"bar": map[string]any{
 						"bat": "1",
