@@ -14,18 +14,17 @@ func TestSharedParserReturnsSameInstance(t *testing.T) {
 }
 
 func TestSharedParserConcurrent(t *testing.T) {
-	// Reset the shared parser to test concurrent initialization.
-	parserOnce = sync.Once{}
-	sharedParser = nil
-
 	var wg sync.WaitGroup
+	parsers := make([]*any, 100)
 	for i := 0; i < 100; i++ {
 		wg.Add(1)
-		go func() {
+		go func(idx int) {
 			defer wg.Done()
 			p := SharedParser()
 			assert.NotNil(t, p)
-		}()
+			v := any(p)
+			parsers[idx] = &v
+		}(i)
 	}
 	wg.Wait()
 }

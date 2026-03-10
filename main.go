@@ -44,7 +44,7 @@ func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, r
 		f = cached.(*armparser.ArmValue)
 	} else {
 		var err error
-		f, err = parser.ParseString("", expr)
+		f, err = parser.ParseString("expression", expr)
 		if err != nil {
 			lgr.Error("Parser error", slog.String("error", err.Error()))
 			return nil, err
