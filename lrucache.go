@@ -15,6 +15,14 @@ type lruCache struct {
 	capacity int
 	items    map[string]*list.Element
 	order    *list.List // front = most recently used
+	inflight map[string]*call
+}
+
+// call represents an in-flight or completed cache computation.
+type call struct {
+	wg  sync.WaitGroup
+	val any
+	err error
 }
 
 type lruEntry struct {
@@ -30,6 +38,7 @@ func newLRUCache(capacity int) *lruCache {
 		capacity: capacity,
 		items:    make(map[string]*list.Element, capacity),
 		order:    list.New(),
+		inflight: make(map[string]*call),
 	}
 }
 
@@ -77,6 +86,58 @@ func (c *lruCache) evictOldest() {
 	delete(c.items, oldest.Value.(*lruEntry).key)
 }
 
+// loadOrCompute retrieves a value from the cache, or computes it using the
+// provided function if not present. Only one goroutine will compute the value
+// for a given key at a time; concurrent callers for the same key will wait
+// for the in-flight computation to complete (singleflight pattern).
+// On success the result is stored in the cache; on error it is not cached.
+func (c *lruCache) loadOrCompute(key string, compute func() (any, error)) (any, error) {
+	c.mu.Lock()
+
+	// Fast path: already cached.
+	if elem, ok := c.items[key]; ok {
+		c.order.MoveToFront(elem)
+		val := elem.Value.(*lruEntry).value
+		c.mu.Unlock()
+		return val, nil
+	}
+
+	// Another goroutine is already computing this key — wait for it.
+	if cl, ok := c.inflight[key]; ok {
+		c.mu.Unlock()
+		cl.wg.Wait()
+		return cl.val, cl.err
+	}
+
+	// We are the first — register an inflight entry.
+	cl := &call{}
+	cl.wg.Add(1)
+	c.inflight[key] = cl
+	c.mu.Unlock()
+
+	// Compute the value outside the lock.
+	val, err := compute()
+	cl.val = val
+	cl.err = err
+	cl.wg.Done()
+
+	c.mu.Lock()
+	delete(c.inflight, key)
+	if err == nil {
+		if _, exists := c.items[key]; !exists {
+			if c.order.Len() >= c.capacity {
+				c.evictOldest()
+			}
+			entry := &lruEntry{key: key, value: val}
+			elem := c.order.PushFront(entry)
+			c.items[key] = elem
+		}
+	}
+	c.mu.Unlock()
+
+	return val, err
+}
+
 // reset clears all entries from the cache.
 func (c *lruCache) reset() {
 	c.mu.Lock()
@@ -84,6 +145,7 @@ func (c *lruCache) reset() {
 
 	c.items = make(map[string]*list.Element, c.capacity)
 	c.order.Init()
+	c.inflight = make(map[string]*call)
 }
 
 // len returns the number of entries in the cache.

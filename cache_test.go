@@ -194,12 +194,16 @@ func BenchmarkEvaluateNoCache(b *testing.B) {
 	expr := "[if(equals('a', 'b'), 'a is equal to b', 'a is not equal to b')]"
 	ctx := context.Background()
 	registry := armparser.DefaultRegistry()
+	parser := armparser.SharedParser()
 
 	b.ReportAllocs()
 	for b.Loop() {
-		// Clear cache to simulate no caching.
-		ResetParseCache()
-		_, err := Evaluate(ctx, expr, nil, registry, nil)
+		// Parse directly without the cache to measure raw parse+eval cost.
+		f, err := parser.ParseString("expression", expr)
+		if err != nil {
+			b.Fatal(err)
+		}
+		_, err = f.Evaluate(ctx, nil, registry)
 		if err != nil {
 			b.Fatal(err)
 		}

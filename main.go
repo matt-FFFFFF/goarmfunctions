@@ -60,18 +60,14 @@ func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, r
 	}
 	lgr.Debug("Parsing", slog.String("input", expr))
 
-	var f *armparser.ArmValue
-	if cached, ok := parseCache.load(expr); ok {
-		f = cached.(*armparser.ArmValue)
-	} else {
-		var err error
-		f, err = parser.ParseString("expression", expr)
-		if err != nil {
-			lgr.Error("Parser error", slog.String("error", err.Error()))
-			return nil, err
-		}
-		parseCache.store(expr, f)
+	cached, err := parseCache.loadOrCompute(expr, func() (any, error) {
+		return parser.ParseString("expression", expr)
+	})
+	if err != nil {
+		lgr.Error("Parser error", slog.String("error", err.Error()))
+		return nil, err
 	}
+	f := cached.(*armparser.ArmValue)
 
 	if registry == nil {
 		registry = armparser.DefaultRegistry()
