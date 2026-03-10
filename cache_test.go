@@ -132,6 +132,31 @@ func TestSetParseCacheSize(t *testing.T) {
 	assert.True(t, ok, "third expression should still be cached")
 }
 
+func TestSetParseCacheSizeZeroDisablesCaching(t *testing.T) {
+	ResetParseCache()
+	SetParseCacheSize(0)
+	defer SetParseCacheSize(DefaultParseCacheSize)
+
+	ctx := context.Background()
+	expr := "[if(equals('a', 'a'), 'yes', 'no')]"
+
+	// Evaluate should still succeed even with caching disabled.
+	result, err := Evaluate(ctx, expr, nil, nil, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "yes", result)
+
+	// Cache should remain empty when capacity is 0.
+	assert.Equal(t, 0, ParseCacheLen())
+	_, ok := parseCache.load(expr)
+	assert.False(t, ok, "expression should not be cached when capacity is 0")
+
+	// Evaluate again to confirm repeated calls still work without caching.
+	result2, err := Evaluate(ctx, expr, nil, nil, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "yes", result2)
+	assert.Equal(t, 0, ParseCacheLen())
+}
+
 func TestSetParseCacheSizeShrink(t *testing.T) {
 	ResetParseCache()
 	SetParseCacheSize(DefaultParseCacheSize)

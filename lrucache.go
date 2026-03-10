@@ -54,6 +54,7 @@ func (c *lruCache) load(key string) (any, bool) {
 	}
 	return nil, false
 }
+
 // evictOldest removes the least recently used entry. Must be called with mu held.
 func (c *lruCache) evictOldest() {
 	oldest := c.order.Back()
@@ -101,7 +102,7 @@ func (c *lruCache) loadOrCompute(key string, compute func() (any, error)) (any, 
 
 	c.mu.Lock()
 	delete(c.inflight, key)
-	if err == nil {
+	if err == nil && c.capacity > 0 {
 		if _, exists := c.items[key]; !exists {
 			if c.order.Len() >= c.capacity {
 				c.evictOldest()

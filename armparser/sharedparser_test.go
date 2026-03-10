@@ -4,6 +4,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/alecthomas/participle/v2"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,15 +16,14 @@ func TestSharedParserReturnsSameInstance(t *testing.T) {
 
 func TestSharedParserConcurrent(t *testing.T) {
 	var wg sync.WaitGroup
-	parsers := make([]*any, 100)
+	parsers := make([]*participle.Parser[ArmValue], 100)
 	for i := 0; i < 100; i++ {
 		wg.Add(1)
 		go func(idx int) {
 			defer wg.Done()
 			p := SharedParser()
 			assert.NotNil(t, p)
-			v := any(p)
-			parsers[idx] = &v
+			parsers[idx] = p
 		}(i)
 	}
 	wg.Wait()
@@ -33,6 +33,6 @@ func TestSharedParserConcurrent(t *testing.T) {
 	assert.NotNil(t, first)
 	for i := 1; i < len(parsers); i++ {
 		assert.NotNil(t, parsers[i])
-		assert.Same(t, *first, *parsers[i], "all goroutines should see the same SharedParser instance")
+		assert.Same(t, first, parsers[i], "all goroutines should see the same SharedParser instance")
 	}
 }
