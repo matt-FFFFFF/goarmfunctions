@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"strings"
-	"sync"
 
 	"github.com/matt-FFFFFF/goarmfunctions/armlexer"
 	"github.com/matt-FFFFFF/goarmfunctions/armparser"
@@ -13,7 +12,29 @@ import (
 
 // parseCache caches parsed ARM expressions by their string representation.
 // This avoids re-parsing the same expression multiple times.
-var parseCache sync.Map
+// The cache uses LRU eviction and is bounded to DefaultParseCacheSize entries.
+var parseCache = newLRUCache(DefaultParseCacheSize)
+
+// ResetParseCache clears all entries from the global parseCache.
+// This allows long-lived processes to reclaim memory if many distinct
+// expressions have been evaluated over time.
+func ResetParseCache() {
+	parseCache.reset()
+}
+
+// SetParseCacheSize changes the maximum number of parsed expressions
+// that can be held in the cache. If the new size is smaller than the
+// current number of cached entries, the least recently used entries
+// are evicted immediately. A size of 0 effectively disables caching
+// (entries are evicted immediately after being added).
+func SetParseCacheSize(size int) {
+	parseCache.resize(size)
+}
+
+// ParseCacheLen returns the current number of entries in the parse cache.
+func ParseCacheLen() int {
+	return parseCache.len()
+}
 
 // Evaluate parses and evaluates an ARM template expression with the given EvalContext and FuncRegistry.
 func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, registry *armparser.FuncRegistry, lgr logger.Logger) (any, error) {
@@ -40,7 +61,7 @@ func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, r
 	lgr.Debug("Parsing", slog.String("input", expr))
 
 	var f *armparser.ArmValue
-	if cached, ok := parseCache.Load(expr); ok {
+	if cached, ok := parseCache.load(expr); ok {
 		f = cached.(*armparser.ArmValue)
 	} else {
 		var err error
@@ -49,7 +70,7 @@ func Evaluate(ctx context.Context, expr string, evalCtx armparser.EvalContext, r
 			lgr.Error("Parser error", slog.String("error", err.Error()))
 			return nil, err
 		}
-		parseCache.Store(expr, f)
+		parseCache.store(expr, f)
 	}
 
 	if registry == nil {
