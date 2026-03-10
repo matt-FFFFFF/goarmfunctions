@@ -62,7 +62,7 @@ func (t *ArmTemplateString) Evaluate(ctx context.Context, evalCtx EvalContext, r
 			if len(t.Parts) == 1 {
 				return value, nil
 			}
-			result.WriteString(fmt.Sprintf("%v", value))
+			fmt.Fprintf(&result, "%v", value)
 		}
 	}
 	return result.String(), nil
