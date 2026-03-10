@@ -23,6 +23,9 @@ type lruEntry struct {
 }
 
 func newLRUCache(capacity int) *lruCache {
+	if capacity < 0 {
+		capacity = 0
+	}
 	return &lruCache{
 		capacity: capacity,
 		items:    make(map[string]*list.Element, capacity),
@@ -94,10 +97,14 @@ func (c *lruCache) len() int {
 // resize changes the capacity of the cache.
 // If the new capacity is smaller than the current number of entries,
 // the least recently used entries are evicted.
+// Negative values are treated as 0.
 func (c *lruCache) resize(capacity int) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	if capacity < 0 {
+		capacity = 0
+	}
 	c.capacity = capacity
 	for c.order.Len() > c.capacity {
 		c.evictOldest()
