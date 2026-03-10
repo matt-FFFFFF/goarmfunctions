@@ -27,4 +27,12 @@ func TestSharedParserConcurrent(t *testing.T) {
 		}(i)
 	}
 	wg.Wait()
+
+	// Verify that all goroutines received the same shared parser instance.
+	first := parsers[0]
+	assert.NotNil(t, first)
+	for i := 1; i < len(parsers); i++ {
+		assert.NotNil(t, parsers[i])
+		assert.Same(t, *first, *parsers[i], "all goroutines should see the same SharedParser instance")
+	}
 }
