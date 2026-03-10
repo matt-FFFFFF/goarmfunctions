@@ -1,6 +1,6 @@
 module github.com/matt-FFFFFF/goarmfunctions
 
-go 1.23.2
+go 1.25.7
 
 require (
 	github.com/alecthomas/participle/v2 v2.1.1

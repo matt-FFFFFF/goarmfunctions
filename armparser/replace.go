@@ -49,7 +49,7 @@ func Replace(ctx context.Context, f *FunctionCall, evalCtx EvalContext) (any, er
 		return nil, fmt.Errorf("replace() only supports strings at this time. New argument is not a string: %v", new)
 	}
 
-	res := strings.Replace(original.(string), old.(string), new.(string), -1)
+	res := strings.ReplaceAll(original.(string), old.(string), new.(string))
 	lgr.Debug("Replace - Returning resultant string", slog.String("result", res))
 	return res, nil
 }
